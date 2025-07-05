@@ -1,0 +1,695 @@
+[
+  {
+    "province_id": 32,
+    "province": "香港特别行政区",
+    "population": 2890,
+    "frequency": 0.9221,
+    "time": 2024
+  },
+  {
+    "province_id": 5,
+    "province": "吉林省",
+    "population": 2954,
+    "frequency": 0.9426,
+    "time": 2024
+  },
+  {
+    "province_id": 13,
+    "province": "广西壮族自治区",
+    "population": 3018,
+    "frequency": 0.963,
+    "time": 2024
+  },
+  {
+    "province_id": 24,
+    "province": "甘肃省",
+    "population": 3029,
+    "frequency": 0.9665,
+    "time": 2024
+  },
+  {
+    "province_id": 28,
+    "province": "辽宁省",
+    "population": 2971,
+    "frequency": 0.948,
+    "time": 2024
+  },
+  {
+    "province_id": 9,
+    "province": "安徽省",
+    "population": 3018,
+    "frequency": 0.963,
+    "time": 2024
+  },
+  {
+    "province_id": 1,
+    "province": "上海市",
+    "population": 3069,
+    "frequency": 0.9793,
+    "time": 2024
+  },
+  {
+    "province_id": 27,
+    "province": "贵州省",
+    "population": 3082,
+    "frequency": 0.9834,
+    "time": 2024
+  },
+  {
+    "province_id": 4,
+    "province": "北京市",
+    "population": 3134,
+    "frequency": 1.0,
+    "time": 2024
+  },
+  {
+    "province_id": 10,
+    "province": "山东省",
+    "population": 3084,
+    "frequency": 0.984,
+    "time": 2024
+  },
+  {
+    "province_id": 29,
+    "province": "重庆市",
+    "population": 2936,
+    "frequency": 0.9368,
+    "time": 2024
+  },
+  {
+    "province_id": 2,
+    "province": "云南省",
+    "population": 3008,
+    "frequency": 0.9598,
+    "time": 2024
+  },
+  {
+    "province_id": 26,
+    "province": "西藏自治区",
+    "population": 3026,
+    "frequency": 0.9655,
+    "time": 2024
+  },
+  {
+    "province_id": 20,
+    "province": "海南省",
+    "population": 3082,
+    "frequency": 0.9834,
+    "time": 2024
+  },
+  {
+    "province_id": 21,
+    "province": "湖北省",
+    "population": 3086,
+    "frequency": 0.9847,
+    "time": 2024
+  },
+  {
+    "province_id": 23,
+    "province": "澳门特别行政区",
+    "population": 3097,
+    "frequency": 0.9882,
+    "time": 2024
+  },
+  {
+    "province_id": 22,
+    "province": "湖南省",
+    "population": 2978,
+    "frequency": 0.9502,
+    "time": 2024
+  },
+  {
+    "province_id": 14,
+    "province": "新疆维吾尔自治区",
+    "population": 2978,
+    "frequency": 0.9502,
+    "time": 2024
+  },
+  {
+    "province_id": 15,
+    "province": "江苏省",
+    "population": 2994,
+    "frequency": 0.9553,
+    "time": 2024
+  },
+  {
+    "province_id": 16,
+    "province": "江西省",
+    "population": 3022,
+    "frequency": 0.9643,
+    "time": 2024
+  },
+  {
+    "province_id": 7,
+    "province": "天津市",
+    "population": 3084,
+    "frequency": 0.984,
+    "time": 2024
+  },
+  {
+    "province_id": 8,
+    "province": "宁夏回族自治区",
+    "population": 3101,
+    "frequency": 0.9895,
+    "time": 2024
+  },
+  {
+    "province_id": 18,
+    "province": "河南省",
+    "population": 3041,
+    "frequency": 0.9703,
+    "time": 2024
+  },
+  {
+    "province_id": 3,
+    "province": "内蒙古自治区",
+    "population": 3067,
+    "frequency": 0.9786,
+    "time": 2024
+  },
+  {
+    "province_id": 30,
+    "province": "陕西省",
+    "population": 3025,
+    "frequency": 0.9652,
+    "time": 2024
+  },
+  {
+    "province_id": 33,
+    "province": "黑龙江省",
+    "population": 2939,
+    "frequency": 0.9378,
+    "time": 2024
+  },
+  {
+    "province_id": 25,
+    "province": "福建省",
+    "population": 3088,
+    "frequency": 0.9853,
+    "time": 2024
+  },
+  {
+    "province_id": 31,
+    "province": "青海省",
+    "population": 2997,
+    "frequency": 0.9563,
+    "time": 2024
+  },
+  {
+    "province_id": 11,
+    "province": "山西省",
+    "population": 3071,
+    "frequency": 0.9799,
+    "time": 2024
+  },
+  {
+    "province_id": 6,
+    "province": "四川省",
+    "population": 3083,
+    "frequency": 0.9837,
+    "time": 2024
+  },
+  {
+    "province_id": 17,
+    "province": "河北省",
+    "population": 2995,
+    "frequency": 0.9556,
+    "time": 2024
+  },
+  {
+    "province_id": 12,
+    "province": "广东省",
+    "population": 2971,
+    "frequency": 0.948,
+    "time": 2024
+  },
+  {
+    "province_id": 19,
+    "province": "浙江省",
+    "population": 3082,
+    "frequency": 0.9834,
+    "time": 2024
+  },
+  {
+    "province_id": 10,
+    "province": "山东省",
+    "population": 3102,
+    "frequency": 0.9694,
+    "time": 2025
+  },
+  {
+    "province_id": 14,
+    "province": "新疆维吾尔自治区",
+    "population": 3063,
+    "frequency": 0.9572,
+    "time": 2025
+  },
+  {
+    "province_id": 28,
+    "province": "辽宁省",
+    "population": 3010,
+    "frequency": 0.9406,
+    "time": 2025
+  },
+  {
+    "province_id": 11,
+    "province": "山西省",
+    "population": 2973,
+    "frequency": 0.9291,
+    "time": 2025
+  },
+  {
+    "province_id": 8,
+    "province": "宁夏回族自治区",
+    "population": 3145,
+    "frequency": 0.9828,
+    "time": 2025
+  },
+  {
+    "province_id": 20,
+    "province": "海南省",
+    "population": 3089,
+    "frequency": 0.9653,
+    "time": 2025
+  },
+  {
+    "province_id": 6,
+    "province": "四川省",
+    "population": 3081,
+    "frequency": 0.9628,
+    "time": 2025
+  },
+  {
+    "province_id": 9,
+    "province": "安徽省",
+    "population": 2995,
+    "frequency": 0.9359,
+    "time": 2025
+  },
+  {
+    "province_id": 13,
+    "province": "广西壮族自治区",
+    "population": 3009,
+    "frequency": 0.9403,
+    "time": 2025
+  },
+  {
+    "province_id": 24,
+    "province": "甘肃省",
+    "population": 3002,
+    "frequency": 0.9381,
+    "time": 2025
+  },
+  {
+    "province_id": 1,
+    "province": "上海市",
+    "population": 3136,
+    "frequency": 0.98,
+    "time": 2025
+  },
+  {
+    "province_id": 30,
+    "province": "陕西省",
+    "population": 2979,
+    "frequency": 0.9309,
+    "time": 2025
+  },
+  {
+    "province_id": 12,
+    "province": "广东省",
+    "population": 3003,
+    "frequency": 0.9384,
+    "time": 2025
+  },
+  {
+    "province_id": 19,
+    "province": "浙江省",
+    "population": 3129,
+    "frequency": 0.9778,
+    "time": 2025
+  },
+  {
+    "province_id": 3,
+    "province": "内蒙古自治区",
+    "population": 2925,
+    "frequency": 0.9141,
+    "time": 2025
+  },
+  {
+    "province_id": 15,
+    "province": "江苏省",
+    "population": 3100,
+    "frequency": 0.9688,
+    "time": 2025
+  },
+  {
+    "province_id": 4,
+    "province": "北京市",
+    "population": 2969,
+    "frequency": 0.9278,
+    "time": 2025
+  },
+  {
+    "province_id": 29,
+    "province": "重庆市",
+    "population": 3060,
+    "frequency": 0.9563,
+    "time": 2025
+  },
+  {
+    "province_id": 27,
+    "province": "贵州省",
+    "population": 2958,
+    "frequency": 0.9244,
+    "time": 2025
+  },
+  {
+    "province_id": 33,
+    "province": "黑龙江省",
+    "population": 3033,
+    "frequency": 0.9478,
+    "time": 2025
+  },
+  {
+    "province_id": 25,
+    "province": "福建省",
+    "population": 3006,
+    "frequency": 0.9394,
+    "time": 2025
+  },
+  {
+    "province_id": 17,
+    "province": "河北省",
+    "population": 2917,
+    "frequency": 0.9116,
+    "time": 2025
+  },
+  {
+    "province_id": 23,
+    "province": "澳门特别行政区",
+    "population": 2953,
+    "frequency": 0.9228,
+    "time": 2025
+  },
+  {
+    "province_id": 18,
+    "province": "河南省",
+    "population": 2989,
+    "frequency": 0.9341,
+    "time": 2025
+  },
+  {
+    "province_id": 21,
+    "province": "湖北省",
+    "population": 3200,
+    "frequency": 1.0,
+    "time": 2025
+  },
+  {
+    "province_id": 31,
+    "province": "青海省",
+    "population": 3047,
+    "frequency": 0.9522,
+    "time": 2025
+  },
+  {
+    "province_id": 26,
+    "province": "西藏自治区",
+    "population": 2952,
+    "frequency": 0.9225,
+    "time": 2025
+  },
+  {
+    "province_id": 5,
+    "province": "吉林省",
+    "population": 3042,
+    "frequency": 0.9506,
+    "time": 2025
+  },
+  {
+    "province_id": 16,
+    "province": "江西省",
+    "population": 2979,
+    "frequency": 0.9309,
+    "time": 2025
+  },
+  {
+    "province_id": 32,
+    "province": "香港特别行政区",
+    "population": 3046,
+    "frequency": 0.9519,
+    "time": 2025
+  },
+  {
+    "province_id": 2,
+    "province": "云南省",
+    "population": 3039,
+    "frequency": 0.9497,
+    "time": 2025
+  },
+  {
+    "province_id": 22,
+    "province": "湖南省",
+    "population": 3019,
+    "frequency": 0.9434,
+    "time": 2025
+  },
+  {
+    "province_id": 7,
+    "province": "天津市",
+    "population": 3050,
+    "frequency": 0.9531,
+    "time": 2025
+  },
+  {
+    "province_id": 25,
+    "province": "福建省",
+    "population": 2971,
+    "frequency": 0.9244,
+    "time": 2026
+  },
+  {
+    "province_id": 10,
+    "province": "山东省",
+    "population": 3151,
+    "frequency": 0.9804,
+    "time": 2026
+  },
+  {
+    "province_id": 3,
+    "province": "内蒙古自治区",
+    "population": 2918,
+    "frequency": 0.9079,
+    "time": 2026
+  },
+  {
+    "province_id": 27,
+    "province": "贵州省",
+    "population": 3042,
+    "frequency": 0.9465,
+    "time": 2026
+  },
+  {
+    "province_id": 5,
+    "province": "吉林省",
+    "population": 2909,
+    "frequency": 0.9051,
+    "time": 2026
+  },
+  {
+    "province_id": 17,
+    "province": "河北省",
+    "population": 2967,
+    "frequency": 0.9231,
+    "time": 2026
+  },
+  {
+    "province_id": 6,
+    "province": "四川省",
+    "population": 3072,
+    "frequency": 0.9558,
+    "time": 2026
+  },
+  {
+    "province_id": 1,
+    "province": "上海市",
+    "population": 3111,
+    "frequency": 0.968,
+    "time": 2026
+  },
+  {
+    "province_id": 14,
+    "province": "新疆维吾尔自治区",
+    "population": 2948,
+    "frequency": 0.9172,
+    "time": 2026
+  },
+  {
+    "province_id": 12,
+    "province": "广东省",
+    "population": 3047,
+    "frequency": 0.948,
+    "time": 2026
+  },
+  {
+    "province_id": 16,
+    "province": "江西省",
+    "population": 3058,
+    "frequency": 0.9515,
+    "time": 2026
+  },
+  {
+    "province_id": 33,
+    "province": "黑龙江省",
+    "population": 3015,
+    "frequency": 0.9381,
+    "time": 2026
+  },
+  {
+    "province_id": 26,
+    "province": "西藏自治区",
+    "population": 2997,
+    "frequency": 0.9325,
+    "time": 2026
+  },
+  {
+    "province_id": 9,
+    "province": "安徽省",
+    "population": 3130,
+    "frequency": 0.9739,
+    "time": 2026
+  },
+  {
+    "province_id": 20,
+    "province": "海南省",
+    "population": 3046,
+    "frequency": 0.9477,
+    "time": 2026
+  },
+  {
+    "province_id": 31,
+    "province": "青海省",
+    "population": 2992,
+    "frequency": 0.9309,
+    "time": 2026
+  },
+  {
+    "province_id": 11,
+    "province": "山西省",
+    "population": 2940,
+    "frequency": 0.9147,
+    "time": 2026
+  },
+  {
+    "province_id": 7,
+    "province": "天津市",
+    "population": 3122,
+    "frequency": 0.9714,
+    "time": 2026
+  },
+  {
+    "province_id": 8,
+    "province": "宁夏回族自治区",
+    "population": 2953,
+    "frequency": 0.9188,
+    "time": 2026
+  },
+  {
+    "province_id": 18,
+    "province": "河南省",
+    "population": 3056,
+    "frequency": 0.9508,
+    "time": 2026
+  },
+  {
+    "province_id": 28,
+    "province": "辽宁省",
+    "population": 3037,
+    "frequency": 0.9449,
+    "time": 2026
+  },
+  {
+    "province_id": 29,
+    "province": "重庆市",
+    "population": 3107,
+    "frequency": 0.9667,
+    "time": 2026
+  },
+  {
+    "province_id": 15,
+    "province": "江苏省",
+    "population": 3143,
+    "frequency": 0.9779,
+    "time": 2026
+  },
+  {
+    "province_id": 4,
+    "province": "北京市",
+    "population": 3214,
+    "frequency": 1.0,
+    "time": 2026
+  },
+  {
+    "province_id": 30,
+    "province": "陕西省",
+    "population": 3087,
+    "frequency": 0.9605,
+    "time": 2026
+  },
+  {
+    "province_id": 21,
+    "province": "湖北省",
+    "population": 3117,
+    "frequency": 0.9698,
+    "time": 2026
+  },
+  {
+    "province_id": 24,
+    "province": "甘肃省",
+    "population": 2939,
+    "frequency": 0.9144,
+    "time": 2026
+  },
+  {
+    "province_id": 22,
+    "province": "湖南省",
+    "population": 2977,
+    "frequency": 0.9263,
+    "time": 2026
+  },
+  {
+    "province_id": 19,
+    "province": "浙江省",
+    "population": 3037,
+    "frequency": 0.9449,
+    "time": 2026
+  },
+  {
+    "province_id": 23,
+    "province": "澳门特别行政区",
+    "population": 2929,
+    "frequency": 0.9113,
+    "time": 2026
+  },
+  {
+    "province_id": 13,
+    "province": "广西壮族自治区",
+    "population": 3041,
+    "frequency": 0.9462,
+    "time": 2026
+  },
+  {
+    "province_id": 32,
+    "province": "香港特别行政区",
+    "population": 2928,
+    "frequency": 0.911,
+    "time": 2026
+  },
+  {
+    "province_id": 2,
+    "province": "云南省",
+    "population": 2999,
+    "frequency": 0.9331,
+    "time": 2026
+  }
+]
