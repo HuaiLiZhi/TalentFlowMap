@@ -1,11 +1,17 @@
 <template>
   <div class="map-container">
-    <!-- 左侧人员信息侧边栏 -->
-    <div class="person-sidebar">
+    <!-- 左侧人员信息侧边栏（增加显示控制） -->
+    <div
+        class="person-sidebar"
+        v-if="showPersonSidebar"
+    >
       <div class="sidebar-header">
-        <h3>
-          {{ selectedProvince ? `${selectedProvince.name} 人员信息` : '请选择省份' }}
-        </h3>
+        <div class="header-content">
+          <h3>
+            {{ selectedProvince ? `${selectedProvince.name} 人员信息` : '请选择省份' }}
+          </h3>
+          <button class="close-btn" @click="showPersonSidebar = false">×</button>
+        </div>
         <p class="year-indicator">当前年份: {{ selectedYear }}</p>
       </div>
       <div class="person-list">
@@ -19,13 +25,11 @@
             class="person-card"
             @click="selectPerson(person)"
         >
-          <!-- 姓名和行业 -->
+          <!-- 人员卡片内容保持不变 -->
           <div class="person-header">
             <h4>{{ person.name }}</h4>
             <span class="industry-tag">{{ person.industry }}</span>
           </div>
-
-          <!-- 人员信息 -->
           <div class="person-info">
             <div class="info-row">
               <p>ID: {{ person.person_id }}</p>
@@ -35,8 +39,6 @@
               <p>工作年限: {{ person.work_years }}年</p>
             </div>
           </div>
-
-          <!-- 能力信息 -->
           <div class="abilities">
             <div class="ability-row">
               <div class="ability-item">
@@ -59,14 +61,17 @@
       </div>
     </div>
 
-    <!-- 新增：人员详细信息显示框 -->
-    <div class="person-detail-panel">
-      <h3>人员详细信息</h3>
-      <div v-if="!selectedPerson" class="empty-detail">
-        请点击左侧人员卡片查看详细信息
+    <!-- 人员详细信息显示框（增加显示控制） -->
+    <div
+        class="person-detail-panel"
+        v-if="showPersonDetail && selectedPerson"
+    >
+      <div class="detail-header">
+        <h3>人员详细信息</h3>
+        <button class="close-btn" @click="showPersonDetail = false">×</button>
       </div>
-      <div v-else class="detail-content">
-        <!-- 基本信息（两列布局） -->
+      <div class="detail-content">
+        <!-- 基本信息 -->
         <div class="detail-section">
           <h4>基本信息</h4>
           <div class="two-column">
@@ -78,7 +83,7 @@
           </div>
         </div>
 
-        <!-- 教育背景（两列布局） -->
+        <!-- 教育背景 -->
         <div class="detail-section">
           <h4>教育背景</h4>
           <div class="two-column">
@@ -87,7 +92,7 @@
           </div>
         </div>
 
-        <!-- 工作信息（两列布局） -->
+        <!-- 工作信息 -->
         <div class="detail-section">
           <h4>工作信息</h4>
           <div class="two-column">
@@ -97,7 +102,7 @@
           </div>
         </div>
 
-        <!-- 能力评估（两列布局） -->
+        <!-- 能力评估 -->
         <div class="detail-section">
           <h4>能力评估</h4>
           <div class="two-column">
@@ -152,12 +157,12 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, computed, watch } from 'vue'
+import { ref, onMounted, computed, watch, onUnmounted} from 'vue'
 import provincesData from './json/china-provinces.json'
 import populationData from './json/data/province_population_frequency.json'
 import traceData from './json/data/province_migration_frequency.json'
 import personData from './json/data/persons_track.json'
-import personDetailData from './json/data/persons_info.json'  // 导入人员详细信息JSON
+import personDetailData from './json/data/persons_info.json'
 
 // 定义数据
 const provinces = ref(provincesData.provinces)
@@ -175,15 +180,20 @@ const yearGroupData = ref<Record<number, Record<string, any>>>({})
 // 轨迹线相关
 const traceLines = ref([])
 const yearTraceData = ref({})
+// 新增：人员轨迹线存储
+const personTraceLines = ref([])
+const personTraceLabels = ref([])
 
 // 人员数据相关
 const personTracks = ref(personData)
 const yearProvincePersons = ref<Record<number, Record<string, any[]>>>({})
 const filteredPersons = ref([])
 
-// 新增：人员详细信息相关
-const personDetails = ref(personDetailData)  // 存储所有人员的详细信息
-const selectedPerson = ref(null)  // 存储当前选中的人员
+// 人员详细信息相关
+const personDetails = ref(personDetailData)
+const selectedPerson = ref(null)
+const showPersonSidebar = ref(true)
+const showPersonDetail = ref(true)
 
 
 // 初始化数据处理
@@ -234,7 +244,7 @@ const currentYearData = computed(() => {
 })
 
 const filterPersonsByYearAndProvince = () => {
-  if (!selectedProvince || !selectedYear.value) {
+  if (!selectedProvince.value || !selectedYear.value) {
     filteredPersons.value = [];
     return;
   }
@@ -252,11 +262,136 @@ const filterPersonsByYearAndProvince = () => {
   filteredPersons.value = uniquePersons;
 };
 
-// 新增：处理人员选择
+const createYearLabel = (position: number[], years: number[]) => {
+  const yearText = years.join('、'); // 将年份数组转为"2023、2025"格式
+
+  return new window.AMap.Text({
+    text: yearText,
+    position: position, // 省份中心坐标
+    offset: new window.AMap.Pixel(0, 20), // 偏移到省份名称下方
+    style: {
+      backgroundColor: 'rgba(54, 179, 126, 0.9)', // 绿色背景（与轨迹线呼应）
+      color: 'white',
+      padding: '4px 8px',
+      borderRadius: '4px',
+      fontSize: '12px',
+      whiteSpace: 'nowrap',
+      boxShadow: '0 2px 6px rgba(0,0,0,0.2)'
+    },
+    zIndex: 21 // 确保在轨迹线之上
+  });
+};
+
+
+// 清除人员轨迹和标签
+const clearPersonTrace = () => {
+  // 清除轨迹线
+  personTraceLines.value.forEach(line => {
+    if (map.value && line) {
+      map.value.remove(line);
+    }
+  });
+  personTraceLines.value = [];
+
+  // 清除轨迹标签
+  personTraceLabels.value.forEach(label => {
+    if (map.value && label) {
+      map.value.remove(label);
+    }
+  });
+  personTraceLabels.value = [];
+};
+
+// 新增：绘制人员轨迹线
+const drawPersonTrace = (personId) => {
+  // 清除已有轨迹和标签
+  clearPersonTrace();
+
+  // 收集该人员所有年份的轨迹数据
+  const personTraces = personTracks.value.filter(track => track.person_id === personId);
+
+  if (personTraces.length === 0) return;
+
+  // 按省份分组并收集年份
+  const provinceYears = {};
+  personTraces.forEach(trace => {
+    if (!provinceYears[trace.province]) {
+      provinceYears[trace.province] = new Set();
+    }
+    provinceYears[trace.province].add(trace.time);
+  });
+
+  // 按年份排序轨迹点
+  const sortedTraces = [...personTraces].sort((a, b) => a.time - b.time);
+
+  // 获取轨迹点坐标并创建标签
+  const path = [];
+  const labels = [];
+
+  for (const province in provinceYears) {
+    const provinceData = provinces.value.find(p => p.name === province);
+    if (provinceData) {
+      // 添加到轨迹路径
+      path.push(provinceData.center);
+
+      // 排序年份并创建标签
+      const yearArray = Array.from(provinceYears[province]).sort((a, b) => a - b);
+      const label = createYearLabel(provinceData.center, yearArray);
+      labels.push(label);
+    }
+  }
+
+  // 绘制轨迹线（至少需要两个点）
+  if (path.length >= 2) {
+    const traceLine = new window.AMap.Polyline({
+      path: path,
+      strokeColor: '#36b37e', // 绿色
+      strokeWeight: 5, // 粗线
+      strokeOpacity: 0.8,
+      zIndex: 20, // 确保在其他图层之上
+      strokeStyle: 'solid',
+      lineJoin: 'round' // 线条连接处圆润
+    });
+
+    traceLine.setMap(map.value);
+    personTraceLines.value.push(traceLine);
+  }
+
+  // 添加标签到地图
+  labels.forEach(label => {
+    label.setMap(map.value);
+    personTraceLabels.value.push(label);
+  });
+};
+
+// 处理人员选择，添加轨迹绘制
 const selectPerson = (person) => {
-  // 查找并合并人员的基础信息和详细信息
   const detail = personDetails.value.find(d => d.person_id === person.person_id) || {};
   selectedPerson.value = { ...person, ...detail };
+  showPersonDetail.value = true;
+  drawPersonTrace(person.person_id); // 绘制该人员的轨迹
+};
+
+// 选择省份时清除人员轨迹
+const selectProvince = (province) => {
+  clearPersonTrace(); // 切换省份时清除轨迹
+
+  selectedProvince.value = province;
+  activeProvince.value = province.adcode;
+  map.value?.setZoomAndCenter(6, province.center);
+  filterPersonsByYearAndProvince();
+  updateLabelStyles(province.adcode);
+  highlightRelatedLines(province.name);
+  showPersonSidebar.value = true;
+};
+
+// 切换年份时清除人员轨迹
+const handleYearClick = (year) => {
+  clearPersonTrace(); // 切换年份时清除轨迹
+
+  selectedYear.value = year;
+  updateDistrictColorsByYear(null);
+  updateTracesByYear();
 };
 
 watch([() => selectedYear.value, () => selectedProvince.value], () => {
@@ -265,7 +400,6 @@ watch([() => selectedYear.value, () => selectedProvince.value], () => {
 
 const districtLayer = ref(null)
 
-// 高亮选中省份相关线段，淡化其他线段
 const highlightRelatedLines = (provinceName) => {
   traceLines.value.forEach(lineInfo => {
     const { polyline, start, end } = lineInfo;
@@ -294,6 +428,9 @@ onMounted(() => {
       version: "2.0",
       plugins: ['AMap.Text', 'AMap.DistrictLayer', 'AMap.Polyline']
     }).then((AMap) => {
+      // 暴露AMap到window，供后续使用
+      window.AMap = AMap;
+
       map.value = new AMap.Map("m-container", {
         showLabel: false,
         zoom: 4.6,
@@ -314,8 +451,7 @@ onMounted(() => {
   document.body.appendChild(script)
 })
 
-
-// 创建带点击和悬停效果的省份标签
+// 创建省份标签
 const createProvinceLabels = (AMap) => {
   provinces.value.forEach(province => {
     const defaultStyle = {
@@ -520,22 +656,17 @@ const updateTracesByYear = () => {
   }
 };
 
+// 组件卸载时清除轨迹
+onUnmounted(() => {
+  clearPersonTrace();
+});
 
-// 选择省份
-const selectProvince = (province) => {
-  selectedProvince.value = province;
-  activeProvince.value = province.adcode;
-  map.value?.setZoomAndCenter(6, province.center);
-  filterPersonsByYearAndProvince();
-  updateLabelStyles(province.adcode);
-  highlightRelatedLines(province.name);
-};
-
-const handleYearClick = (year) => {
-  selectedYear.value = year;
-  updateDistrictColorsByYear(null);
-  updateTracesByYear();
-};
+watch([() => showPersonDetail.value, () => selectedPerson.value], (newValues) => {
+  const [showDetail, person] = newValues;
+  if (!showDetail || !person) {
+    clearPersonTrace();
+  }
+});
 </script>
 
 <style scoped>
@@ -597,6 +728,8 @@ const handleYearClick = (year) => {
 }
 
 .timeline-container {
+  max-width: 50%;
+  margin: 0 auto;
   position: absolute;
   bottom: 30px;
   left: 0;
@@ -709,6 +842,51 @@ const handleYearClick = (year) => {
 .person-card:active {
   box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1); /* 点击效果 */
 }
+
+/* 关闭按钮样式 */
+.close-btn {
+  background: transparent;
+  border: none;
+  color: #999;
+  font-size: 18px;
+  cursor: pointer;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s;
+}
+
+.close-btn:hover {
+  background-color: #f0f0f0;
+  color: #ff4d4f;
+}
+
+/* 侧边栏标题栏布局 */
+.header-content {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+}
+
+/* 详情面板标题栏布局 */
+.detail-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+  padding-bottom: 10px;
+  border-bottom: 2px solid #409eff;
+}
+
+.detail-header h3 {
+  margin: 0;
+  color: #333;
+}
+
 
 .person-header {
   display: flex;
