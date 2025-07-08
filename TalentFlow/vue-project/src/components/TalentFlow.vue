@@ -111,6 +111,11 @@
             <p>专业能力: {{ selectedPerson.professional_ability }}</p>
             <p>创新能力: {{ selectedPerson.innovative_ability }}</p>
           </div>
+
+          <!-- 雷达图容器 -->
+          <div class="radar-chart-container">
+            <div ref="radarChart" class="radar-chart"></div>
+          </div>
         </div>
       </div>
     </div>
@@ -118,8 +123,8 @@
     <!-- 地图容器 -->
     <div id="m-container"></div>
 
-    <!-- 右侧控制面板 -->
-    <div class="control-panel">
+    <!-- 右侧控制面板（仅保留省市选择） -->
+    <div class="control-panel province-panel">
       <h3>中国省市选择</h3>
       <div class="province-list">
         <div
@@ -153,16 +158,66 @@
         </div>
       </div>
     </div>
+
+    <!-- 右侧控制面板（新增人才数据统计面板） -->
+    <div
+        v-if="showTalentPanel"
+        class="control-panel talent-panel"
+    >
+      <div class="panel-header">
+        <h3>人才数据统计</h3>
+        <button class="close-btn" @click="showTalentPanel = false">×</button>
+      </div>
+
+      <!-- 人才数量变化折线图 -->
+      <div class="chart-section">
+        <h4>人才数量变化趋势</h4>
+        <div ref="talentTrendChart" class="small-chart"></div>
+      </div>
+
+      <!-- 人才流入Top5 -->
+      <div class="stat-table">
+        <h4>主要人才来源 (Top5)</h4>
+        <div v-if="incomingTop5.length === 0" class="empty-stat">暂无数据</div>
+        <div v-else class="stat-row" v-for="(item, index) in incomingTop5" :key="'in-' + index">
+          <span class="rank">{{ index + 1 }}</span>
+          <span class="province-name">{{ item.province }}</span>
+          <span class="count">{{ item.count }}人</span>
+        </div>
+      </div>
+
+      <!-- 人才流出Top5 -->
+      <div class="stat-table">
+        <h4>主要人才去向 (Top5)</h4>
+        <div v-if="outgoingTop5.length === 0" class="empty-stat">暂无数据</div>
+        <div v-else class="stat-row" v-for="(item, index) in outgoingTop5" :key="'out-' + index">
+          <span class="rank">{{ index + 1 }}</span>
+          <span class="province-name">{{ item.province }}</span>
+          <span class="count">{{ item.count }}人</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- 新增：显示统计面板的按钮 -->
+    <button
+        v-if="!showTalentPanel && selectedProvince"
+        class="show-talent-btn"
+        @click="showTalentPanel = true"
+    >
+      显示人才统计
+    </button>
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, computed, watch, onUnmounted} from 'vue'
+import { ref, onMounted, computed, watch, onUnmounted, nextTick } from 'vue'
 import provincesData from './json/china-provinces.json'
 import populationData from './json/data/province_population_frequency.json'
 import traceData from './json/data/province_migration_frequency.json'
 import personData from './json/data/persons_track.json'
 import personDetailData from './json/data/persons_info.json'
+
+import * as echarts from 'echarts'
 
 // 定义数据
 const provinces = ref(provincesData.provinces)
@@ -194,6 +249,242 @@ const personDetails = ref(personDetailData)
 const selectedPerson = ref(null)
 const showPersonSidebar = ref(true)
 const showPersonDetail = ref(true)
+
+// 雷达图相关
+const radarChart = ref<HTMLDivElement>(null)
+const chartInstance = ref<echarts.ECharts | null>(null)
+
+// 新增：人才统计相关数据
+const talentTrendChart = ref<HTMLDivElement>(null)
+const trendChartInstance = ref<echarts.ECharts | null>(null)
+const incomingTop5 = ref([])
+const outgoingTop5 = ref([])
+const talentCountByYear = ref<Record<number, number>>({})
+
+const showTalentPanel = ref(false);
+
+const initTalentTrendChart = () => {
+  if (talentTrendChart.value) {
+    trendChartInstance.value = echarts.init(talentTrendChart.value)
+
+    const option = {
+      tooltip: {
+        trigger: 'axis',
+        axisPointer: {
+          type: 'shadow'
+        }
+      },
+      grid: {
+        left: '3%',
+        right: '4%',
+        bottom: '3%',
+        containLabel: true
+      },
+      xAxis: {
+        type: 'category',
+        data: [],
+        axisLabel: {
+          rotate: 45
+        }
+      },
+      yAxis: {
+        type: 'value',
+        name: '人才数量'
+      },
+      series: [
+        {
+          name: '人才数量',
+          type: 'line',
+          data: [],
+          smooth: true,
+          lineStyle: {
+            width: 3
+          },
+          itemStyle: {
+            radius: 6
+          }
+        }
+      ]
+    }
+
+    trendChartInstance.value.setOption(option)
+  }
+}
+
+// 更新人才趋势图表数据
+const updateTalentTrendChart = () => {
+  if (trendChartInstance.value && Object.keys(talentCountByYear.value).length > 0) {
+    // 按年份排序
+    const sortedYears = Object.keys(talentCountByYear.value)
+        .map(Number)
+        .sort((a, b) => a - b)
+
+    const counts = sortedYears.map(year => talentCountByYear.value[year])
+
+    trendChartInstance.value.setOption({
+      xAxis: {
+        data: sortedYears.map(String)
+      },
+      series: [
+        {
+          data: counts
+        }
+      ]
+    })
+  }
+}
+
+// 计算选中省份的人才统计数据
+const calculateTalentStats = (provinceName: string) => {
+  // 1. 计算各年份人才数量
+  const countByYear: Record<number, number> = {}
+  years.value.forEach(year => {
+    const provincePersons = yearProvincePersons.value[year]?.[provinceName] || []
+    // 使用Set确保每个ID只计数一次
+    const uniqueIds = new Set(provincePersons.map(p => p.person_id))
+    countByYear[year] = uniqueIds.size
+  })
+  talentCountByYear.value = countByYear
+
+  // 2. 计算人才流入Top5（其他省份到当前省份）
+  const incomingMap: Record<string, number> = {}
+  // 3. 计算人才流出Top5（当前省份到其他省份）
+  const outgoingMap: Record<string, number> = {}
+
+  // 遍历所有迁移数据
+  Object.values(yearTraceData.value).forEach(yearData => {
+    yearData.forEach(trace => {
+      // 人才流入：其他省份到当前省份
+      if (trace.end_province === provinceName && trace.start_province !== provinceName) {
+        incomingMap[trace.start_province] = (incomingMap[trace.start_province] || 0) + trace.frequency
+      }
+
+      // 人才流出：当前省份到其他省份
+      if (trace.start_province === provinceName && trace.end_province !== provinceName) {
+        outgoingMap[trace.end_province] = (outgoingMap[trace.end_province] || 0) + trace.frequency
+      }
+    })
+  })
+
+  // 转换为数组并排序，取前5
+  incomingTop5.value = Object.entries(incomingMap)
+      .map(([province, count]) => ({ province, count: Math.round(count) }))
+      .sort((a, b) => b.count - a.count)
+      .slice(0, 5)
+
+  outgoingTop5.value = Object.entries(outgoingMap)
+      .map(([province, count]) => ({ province, count: Math.round(count) }))
+      .sort((a, b) => b.count - a.count)
+      .slice(0, 5)
+
+  // 更新图表
+  updateTalentTrendChart()
+}
+
+// 在选择省份时计算统计数据
+watch(() => selectedProvince.value, (newProvince) => {
+  if (newProvince) {
+    nextTick(() => {
+      calculateTalentStats(newProvince.name);
+      // 可选：选择省份时自动显示统计面板
+      showTalentPanel.value = true;
+    });
+  }
+});
+
+
+// 转换学历为数值（用于雷达图）
+const getEducationValue = (education: string) => {
+  switch(education) {
+    case '博士': return 2;
+    case '硕士': return 1;
+    default: return 0; // 其他学历（如本科）
+  }
+}
+
+// 初始化雷达图
+const initRadarChart = () => {
+  if (radarChart.value) {
+    chartInstance.value = echarts.init(radarChart.value)
+
+    // 设置雷达图配置
+    const option = {
+      tooltip: {
+        trigger: 'item'
+      },
+      radar: {
+        indicator: [
+          { name: '工作年限', max: 30 }, // 假设最大30年
+          { name: '最高学历', max: 2 }, // 博士=2，硕士=1
+          { name: '基础能力', max: 5 },
+          { name: '专业能力', max: 5 },
+          { name: '创新能力', max: 5 }
+        ],
+        splitArea: {
+          areaStyle: {
+            color: ['rgba(255,255,255,0.1)', 'rgba(255,255,255,0.2)']
+          }
+        }
+      },
+      series: [
+        {
+          name: '能力数据',
+          type: 'radar',
+          symbolSize: 6,
+          lineStyle: {
+            width: 2
+          },
+          areaStyle: {
+            opacity: 0.3
+          },
+          data: []
+        }
+      ]
+    }
+
+    chartInstance.value.setOption(option)
+  }
+}
+
+// 更新雷达图数据
+const updateRadarData = (person) => {
+  if (!person) return;
+  nextTick(() => {
+    // 若图表未初始化，先初始化再更新
+    if (!chartInstance.value && radarChart.value) {
+      initRadarChart();
+    }
+    if (chartInstance.value) {
+      const radarData = [
+        {
+          value: [
+            Number(person.work_years) || 0, // 强制转为数字，避免非数值类型
+            getEducationValue(person.highest_education || ''),
+            Number(person.basic_ability) || 0,
+            Number(person.professional_ability) || 0,
+            Number(person.innovative_ability) || 0
+          ],
+          name: person.name || '人员'
+        }
+      ];
+      chartInstance.value.setOption({ series: [{ data: radarData }] });
+    }
+  });
+};
+
+// 监听人员选择变化，更新雷达图
+watch(() => selectedPerson.value, (newPerson) => {
+  if (newPerson) {
+    updateRadarData(newPerson)
+  }
+})
+
+// 年份变化时更新统计数据
+watch(() => selectedYear.value, () => {
+  if (selectedProvince.value) {
+    calculateTalentStats(selectedProvince.value.name);
+  }
+});
 
 
 // 初始化数据处理
@@ -405,7 +696,9 @@ const highlightRelatedLines = (provinceName) => {
     const { polyline, start, end } = lineInfo;
     const isRelated = start === provinceName || end === provinceName;
     polyline.setOptions({
-      strokeOpacity: isRelated ? 1 : 0.05
+      strokeOpacity: isRelated ? 1 : 0.05,  // 非关联线条降低透明度
+      // 保持宽度不变，仅通过透明度区分
+      strokeWeight: polyline.getOptions().strokeWeight  // 维持原宽度
     });
   });
 };
@@ -415,6 +708,7 @@ onMounted(() => {
   initPopulationData()
   initTraceData()
   initPersonData()
+  initTalentTrendChart()
 
   window._AMapSecurityConfig = {
     securityJsCode: "8459a6561ceacfac5ce2615f9b602d7e"
@@ -625,21 +919,29 @@ const updateTracesByYear = () => {
 
     if (!startProvince || !endProvince) return;
 
+    // 归一化频率（0~1范围）
     const normalizedFreq = (trace.frequency - minFreq) / freqRange;
-    const [startLng, startLat] = startProvince.center;
-    const [endLng, endLat] = endProvince.center;
 
+    // 1. 计算颜色（蓝→红，已有逻辑）
+    const strokeColor = getColorByFrequency(normalizedFreq);
+
+    // 2. 计算线条宽度（细→粗）：基于归一化频率，范围1~5px
+    const minWidth = 1;   // 最小宽度
+    const maxWidth = 5;   // 最大宽度
+    const strokeWidth = minWidth + (maxWidth - minWidth) * normalizedFreq;
+
+    // 创建轨迹线（应用颜色和宽度）
     const polyline = new window.AMap.Polyline({
       path: [
-        [startLng, startLat],
-        [endLng, endLat]
+        [startProvince.center[0], startProvince.center[1]],
+        [endProvince.center[0], endProvince.center[1]]
       ],
-      strokeColor: getColorByFrequency(normalizedFreq),
-      strokeWeight: 1,
-      strokeOpacity: 0.7,
+      strokeColor: strokeColor,       // 颜色（蓝→红）
+      strokeWeight: strokeWidth,      // 宽度（细→粗）
+      strokeOpacity: 0.8,             // 适当提高透明度，增强视觉效果
       zIndex: 10,
       strokeStyle: 'solid',
-      depth: 10000
+      lineJoin: 'round'               // 线条连接处圆润，避免尖锐拐角
     });
 
     traceLines.value.push({
@@ -659,12 +961,23 @@ const updateTracesByYear = () => {
 // 组件卸载时清除轨迹
 onUnmounted(() => {
   clearPersonTrace();
-});
+  if (chartInstance.value) {
+    chartInstance.value.dispose()
+  }
 
-watch([() => showPersonDetail.value, () => selectedPerson.value], (newValues) => {
-  const [showDetail, person] = newValues;
-  if (!showDetail || !person) {
-    clearPersonTrace();
+  if (trendChartInstance.value) {
+    trendChartInstance.value.dispose()
+  }
+})
+
+watch([() => showPersonDetail.value, () => selectedPerson.value], ([showDetail, person], [oldShow, oldPerson]) => {
+  if (showDetail && person) {
+    nextTick(() => {
+      if (!chartInstance.value) {
+        initRadarChart();
+      }
+      updateRadarData(person);
+    });
   }
 });
 </script>
@@ -1027,5 +1340,180 @@ watch([() => showPersonDetail.value, () => selectedPerson.value], (newValues) =>
   display: grid;
   grid-template-columns: 1fr 1fr; /* 平均分成两列 */
   gap: 10px 0; /* 行间距10px，列间距20px */
+}
+
+/* 新增雷达图样式 */
+.radar-chart-container {
+  margin-top: 20px;
+  padding-top: 15px;
+  border-top: 1px dashed #eee;
+}
+
+.radar-chart {
+  width: 100% !important; /* 强制占满父容器宽度 */
+  height: 300px !important; /* 固定高度，确保可见 */
+  min-width: 200px; /* 避免容器过窄 */
+}
+
+
+/* 调整能力评估区域布局 */
+.detail-section:last-child {
+  margin-bottom: 40px; /* 增加底部间距，避免图表被截断 */
+}
+
+
+/* 新增：人才统计面板样式 */
+.talent-stat-panel {
+  margin-top: 20px;
+  padding-top: 15px;
+  border-top: 2px solid #409eff;
+}
+
+.talent-stat-panel h3 {
+  color: #333;
+  margin-bottom: 15px;
+  font-size: 16px;
+  padding-bottom: 5px;
+  border-bottom: 1px solid #eee;
+}
+
+.chart-section {
+  margin-bottom: 20px;
+}
+
+.small-chart {
+  width: 100%;
+  height: 200px;
+  margin-top: 10px;
+  border-radius: 6px;
+  background-color: rgba(255, 255, 255, 0.8);
+}
+
+.stat-table {
+  margin-bottom: 20px;
+}
+
+.stat-table h4 {
+  color: #409eff;
+  margin-bottom: 10px;
+  font-size: 14px;
+}
+
+.stat-row {
+  display: flex;
+  align-items: center;
+  padding: 6px 8px;
+  margin-bottom: 5px;
+  background-color: rgba(245, 247, 250, 0.8);
+  border-radius: 4px;
+}
+
+.rank {
+  display: inline-block;
+  width: 24px;
+  height: 24px;
+  line-height: 24px;
+  text-align: center;
+  background-color: #409eff;
+  color: white;
+  border-radius: 50%;
+  margin-right: 10px;
+  font-size: 12px;
+}
+
+.province-name {
+  flex: 1;
+  font-size: 13px;
+}
+
+.count {
+  color: #f56c6c;
+  font-weight: 500;
+  font-size: 13px;
+}
+
+.empty-stat {
+  text-align: center;
+  padding: 15px;
+  color: #999;
+  font-size: 13px;
+  background-color: rgba(245, 247, 250, 0.5);
+  border-radius: 4px;
+}
+
+/* 调整控制面板最大高度，允许滚动 */
+.control-panel {
+  max-height: calc(100vh - 50px);
+  overflow-y: auto;
+}
+
+/* 省市选择面板定位（右侧上方） */
+.province-panel {
+  top: 20px;
+  right: 20px;
+  max-height: 500px; /* 限制高度，避免与统计面板重叠 */
+}
+
+/* 人才统计面板定位（右侧下方） */
+.talent-panel {
+  top: 550px; /* 位于省市面板下方 */
+  right: 20px;
+  max-height: calc(100vh - 600px); /* 适应剩余高度 */
+}
+
+/* 统计面板头部（带关闭按钮） */
+.panel-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 15px;
+}
+
+.panel-header h3 {
+  margin: 0;
+  color: #333;
+  font-size: 16px;
+}
+
+/* 显示统计面板的按钮 */
+.show-talent-btn {
+  position: absolute;
+  top: 510px; /* 位于省市面板下方 */
+  right: 20px;
+  z-index: 2;
+  padding: 8px 15px;
+  background-color: #409eff;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  box-shadow: 0 2px 8px rgba(64, 158, 255, 0.3);
+  transition: background-color 0.2s;
+}
+
+.show-talent-btn:hover {
+  background-color: #66b1ff;
+}
+
+/* 调整统计面板内部样式 */
+.talent-panel .chart-section {
+  margin-top: 10px;
+}
+
+.talent-panel .stat-table {
+  margin-bottom: 15px;
+}
+
+/* 确保两个面板样式隔离 */
+.control-panel {
+  /* 移除原有top和right，由子类定义 */
+  position: absolute;
+  width: 250px;
+  background-color: rgba(255, 255, 255, 0.95);
+  border-radius: 8px;
+  padding: 15px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  z-index: 2;
+  overflow-y: auto;
 }
 </style>
