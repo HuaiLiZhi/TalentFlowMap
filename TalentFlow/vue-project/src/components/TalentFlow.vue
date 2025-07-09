@@ -1,10 +1,7 @@
 <template>
   <div class="map-container">
     <!-- 左侧人员信息侧边栏（增加显示控制） -->
-    <div
-        class="person-sidebar"
-        v-if="showPersonSidebar"
-    >
+    <div class="person-sidebar" v-if="showPersonSidebar">
       <div class="sidebar-header">
         <div class="header-content">
           <h3>
@@ -19,12 +16,8 @@
           暂无该省份在{{ selectedYear }}年的人员数据
         </div>
 
-        <div
-            v-for="person in filteredPersons"
-            :key="person.person_id"
-            class="person-card"
-            @click="selectPerson(person)"
-        >
+        <div v-for="person in filteredPersons" :key="person.person_id" class="person-card"
+          @click="selectPerson(person)">
           <!-- 人员卡片内容保持不变 -->
           <div class="person-header">
             <h4>{{ person.name }}</h4>
@@ -62,10 +55,7 @@
     </div>
 
     <!-- 人员详细信息显示框（增加显示控制） -->
-    <div
-        class="person-detail-panel"
-        v-if="showPersonDetail && selectedPerson"
-    >
+    <div class="person-detail-panel" v-if="showPersonDetail && selectedPerson">
       <div class="detail-header">
         <h3>人员详细信息</h3>
         <button class="close-btn" @click="showPersonDetail = false">×</button>
@@ -124,35 +114,24 @@
     <div id="m-container"></div>
 
     <!-- 右侧控制面板（仅保留省市选择） -->
-    <div class="control-panel province-panel">
+    <!-- <div class="control-panel province-panel">
       <h3>中国省市选择</h3>
       <div class="province-list">
-        <div
-            v-for="province in provinces"
-            :key="province.adcode"
-            :class="{'province-item': true, 'active': activeProvince === province.adcode}"
-            @click="selectProvince(province)"
-        >
+        <div v-for="province in provinces" :key="province.adcode"
+          :class="{ 'province-item': true, 'active': activeProvince === province.adcode }"
+          @click="selectProvince(province)">
           {{ province.name }}
         </div>
       </div>
-      <div v-if="selectedProvince" class="province-info">
-        <h4>{{ selectedProvince.name }}</h4>
-        <p>中心坐标: {{ selectedProvince.center.join(', ') }}</p>
-      </div>
-    </div>
+    </div> -->
 
     <!-- 时间轴组件 -->
     <div class="timeline-container">
       <div class="timeline-header">
         <span class="timeline-title">年份选择</span>
         <div class="timeline-track">
-          <div
-              v-for="year in years"
-              :key="year"
-              :class="{'timeline-item': true, 'active': selectedYear === year}"
-              @click="handleYearClick(year)"
-          >
+          <div v-for="year in years" :key="year" :class="{ 'timeline-item': true, 'active': selectedYear === year }"
+            @click="handleYearClick(year)">
             {{ year }}
           </div>
         </div>
@@ -160,20 +139,18 @@
     </div>
 
     <!-- 右侧控制面板（新增人才数据统计面板） -->
-    <div
-        v-if="showTalentPanel"
-        class="control-panel talent-panel"
-    >
+    <div v-if="showTalentPanel" class="control-panel talent-panel">
       <div class="panel-header">
         <h3>人才数据统计</h3>
         <button class="close-btn" @click="showTalentPanel = false">×</button>
       </div>
 
       <!-- 人才数量变化折线图 -->
-      <div class="chart-section">
+      <!-- <div class="chart-section">
         <h4>人才数量变化趋势</h4>
-        <div ref="talentTrendChart" class="small-chart"></div>
-      </div>
+        <div id="cline" ref="talentTrendChart" class="small-chart">
+        </div>
+      </div> -->
 
       <!-- 人才流入Top5 -->
       <div class="stat-table">
@@ -199,11 +176,7 @@
     </div>
 
     <!-- 新增：显示统计面板的按钮 -->
-    <button
-        v-if="!showTalentPanel && selectedProvince"
-        class="show-talent-btn"
-        @click="showTalentPanel = true"
-    >
+    <button v-if="!showTalentPanel && selectedProvince" class="show-talent-btn" @click="showTalentPanel = true">
       显示人才统计
     </button>
   </div>
@@ -316,8 +289,8 @@ const updateTalentTrendChart = () => {
   if (trendChartInstance.value && Object.keys(talentCountByYear.value).length > 0) {
     // 按年份排序
     const sortedYears = Object.keys(talentCountByYear.value)
-        .map(Number)
-        .sort((a, b) => a - b)
+      .map(Number)
+      .sort((a, b) => a - b)
 
     const counts = sortedYears.map(year => talentCountByYear.value[year])
 
@@ -352,30 +325,33 @@ const calculateTalentStats = (provinceName: string) => {
   const outgoingMap: Record<string, number> = {}
 
   // 遍历所有迁移数据
+  // console.log('计算人才流入和流出数据...')
+  // console.log(yearTraceData.value)
   Object.values(yearTraceData.value).forEach(yearData => {
     yearData.forEach(trace => {
       // 人才流入：其他省份到当前省份
+
       if (trace.end_province === provinceName && trace.start_province !== provinceName) {
-        incomingMap[trace.start_province] = (incomingMap[trace.start_province] || 0) + trace.frequency
+        // console.log(`处理迁移数据: ${trace.start_province} -> ${trace.end_province}, 频率: ${trace.frequency}, 人数： ${trace.population}`)
+        incomingMap[trace.start_province] = (incomingMap[trace.start_province] || 0) + trace.population
       }
 
       // 人才流出：当前省份到其他省份
       if (trace.start_province === provinceName && trace.end_province !== provinceName) {
-        outgoingMap[trace.end_province] = (outgoingMap[trace.end_province] || 0) + trace.frequency
+        outgoingMap[trace.end_province] = (outgoingMap[trace.end_province] || 0) + trace.population
       }
     })
   })
-
   // 转换为数组并排序，取前5
   incomingTop5.value = Object.entries(incomingMap)
-      .map(([province, count]) => ({ province, count: Math.round(count) }))
-      .sort((a, b) => b.count - a.count)
-      .slice(0, 5)
+    .map(([province, count]) => ({ province, count: Math.round(count) }))
+    .sort((a, b) => b.count - a.count)
+    .slice(0, 5)
 
   outgoingTop5.value = Object.entries(outgoingMap)
-      .map(([province, count]) => ({ province, count: Math.round(count) }))
-      .sort((a, b) => b.count - a.count)
-      .slice(0, 5)
+    .map(([province, count]) => ({ province, count: Math.round(count) }))
+    .sort((a, b) => b.count - a.count)
+    .slice(0, 5)
 
   // 更新图表
   updateTalentTrendChart()
@@ -395,7 +371,7 @@ watch(() => selectedProvince.value, (newProvince) => {
 
 // 转换学历为数值（用于雷达图）
 const getEducationValue = (education: string) => {
-  switch(education) {
+  switch (education) {
     case '博士': return 2;
     case '硕士': return 1;
     default: return 0; // 其他学历（如本科）
@@ -838,7 +814,7 @@ const createDistrictLayer = (AMap) => {
     styles: {
       'fill': (props) => {
         const province = provinces.value.find(
-            p => String(p.adcode) === String(props.adcode)
+          p => String(p.adcode) === String(props.adcode)
         )?.name
 
         if (!province) {
@@ -882,7 +858,7 @@ const updateDistrictColorsByYear = (AMap) => {
   districtLayer.value.setStyles({
     'fill': (props) => {
       const province = provinces.value.find(
-          p => String(p.adcode) === String(props.adcode)
+        p => String(p.adcode) === String(props.adcode)
       )?.name
 
       if (!province) return 'rgba(200,200,200,0.3)'
@@ -1144,16 +1120,19 @@ watch([() => showPersonDetail.value, () => selectedPerson.value], ([showDetail, 
   margin-bottom: 12px;
   box-shadow: 0 1px 4px rgba(0, 0, 0, 0.05);
   transition: transform 0.2s, box-shadow 0.2s;
-  cursor: pointer; /* 显示可点击光标 */
+  cursor: pointer;
+  /* 显示可点击光标 */
 }
 
 .person-card:hover {
   transform: translateY(-2px);
-  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.1); /* 增强悬停效果 */
+  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.1);
+  /* 增强悬停效果 */
 }
 
 .person-card:active {
-  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1); /* 点击效果 */
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+  /* 点击效果 */
 }
 
 /* 关闭按钮样式 */
@@ -1285,7 +1264,8 @@ watch([() => showPersonDetail.value, () => selectedPerson.value], ([showDetail, 
   position: absolute;
   top: 0;
   left: 320px;
-  width: 400px; /* 加宽面板（原300px → 400px） */
+  width: 400px;
+  /* 加宽面板（原300px → 400px） */
   height: 100vh;
   background-color: rgba(255, 255, 255, 0.98);
   box-shadow: 2px 0 15px rgba(0, 0, 0, 0.15);
@@ -1310,20 +1290,25 @@ watch([() => showPersonDetail.value, () => selectedPerson.value], ([showDetail, 
 
 .detail-section h4 {
   color: #409eff;
-  margin-bottom: 12px; /* 增加标题与内容的间距 */
+  margin-bottom: 12px;
+  /* 增加标题与内容的间距 */
   font-size: 14px;
   padding-bottom: 5px;
-  border-bottom: 1px solid #f0f0f0; /* 增加小标题下划线 */
+  border-bottom: 1px solid #f0f0f0;
+  /* 增加小标题下划线 */
 }
 
 .detail-content p {
   color: #555;
   font-size: 13px;
-  margin-bottom: 0; /* 移除默认底部间距，通过grid-gap控制间距 */
+  margin-bottom: 0;
+  /* 移除默认底部间距，通过grid-gap控制间距 */
   line-height: 1.5;
-  white-space: nowrap; /* 防止文字换行 */
+  white-space: nowrap;
+  /* 防止文字换行 */
   overflow: hidden;
-  text-overflow: ellipsis; /* 超长文本显示省略号 */
+  text-overflow: ellipsis;
+  /* 超长文本显示省略号 */
 }
 
 .empty-detail {
@@ -1338,8 +1323,10 @@ watch([() => showPersonDetail.value, () => selectedPerson.value], ([showDetail, 
 
 .two-column {
   display: grid;
-  grid-template-columns: 1fr 1fr; /* 平均分成两列 */
-  gap: 10px 0; /* 行间距10px，列间距20px */
+  grid-template-columns: 1fr 1fr;
+  /* 平均分成两列 */
+  gap: 10px 0;
+  /* 行间距10px，列间距20px */
 }
 
 /* 新增雷达图样式 */
@@ -1350,15 +1337,19 @@ watch([() => showPersonDetail.value, () => selectedPerson.value], ([showDetail, 
 }
 
 .radar-chart {
-  width: 100% !important; /* 强制占满父容器宽度 */
-  height: 300px !important; /* 固定高度，确保可见 */
-  min-width: 200px; /* 避免容器过窄 */
+  width: 100% !important;
+  /* 强制占满父容器宽度 */
+  height: 300px !important;
+  /* 固定高度，确保可见 */
+  min-width: 200px;
+  /* 避免容器过窄 */
 }
 
 
 /* 调整能力评估区域布局 */
 .detail-section:last-child {
-  margin-bottom: 40px; /* 增加底部间距，避免图表被截断 */
+  margin-bottom: 40px;
+  /* 增加底部间距，避免图表被截断 */
 }
 
 
@@ -1451,14 +1442,17 @@ watch([() => showPersonDetail.value, () => selectedPerson.value], ([showDetail, 
 .province-panel {
   top: 20px;
   right: 20px;
-  max-height: 500px; /* 限制高度，避免与统计面板重叠 */
+  max-height: 500px;
+  /* 限制高度，避免与统计面板重叠 */
 }
 
 /* 人才统计面板定位（右侧下方） */
 .talent-panel {
-  top: 550px; /* 位于省市面板下方 */
+  top: 10px;
+  /* 位于省市面板下方 */
   right: 20px;
-  max-height: calc(100vh - 600px); /* 适应剩余高度 */
+  max-height: 698px;
+  /* 适应剩余高度 */
 }
 
 /* 统计面板头部（带关闭按钮） */
@@ -1470,7 +1464,7 @@ watch([() => showPersonDetail.value, () => selectedPerson.value], ([showDetail, 
 }
 
 .panel-header h3 {
-  margin: 0;
+  margin: 0 auto;
   color: #333;
   font-size: 16px;
 }
@@ -1478,7 +1472,8 @@ watch([() => showPersonDetail.value, () => selectedPerson.value], ([showDetail, 
 /* 显示统计面板的按钮 */
 .show-talent-btn {
   position: absolute;
-  top: 510px; /* 位于省市面板下方 */
+  top: 510px;
+  /* 位于省市面板下方 */
   right: 20px;
   z-index: 2;
   padding: 8px 15px;
